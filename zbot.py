@@ -21,10 +21,28 @@ class WeaponElementColor(Enum):
     Water = discord.Color.blue()
     Fire = discord.Color.red()
 
-# connect
-load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
-client = discord.Client()
+class WeaponType(Enum):
+    Sword = 1
+    Sword_And_Shield = 2
+    Mace = 3
+    Bow = 4
+    Staff = 5
+    Magic_Device = 7
+    Twin_Blades = 8
+    Scythe = 9
+    Spear = 10
+    Cannon = 11
+    Axe = 12
+    Bones = 100
+    Unknown = 101
+
+class ItemType(Enum):
+    Weapon = 1
+    Head_Slot = 2
+    Top = 3
+    Bottom = 4
+    Upper_Slot = 5
+    Lowwer_Slot = 6
 
 # open and load relevant json files
 with open('json/equipmentItem') as json_file:
@@ -47,6 +65,10 @@ with open('json/passiveSkill') as json_file:
     passiveSkillData = json.load(f)
     f.close
 
+# connect
+load_dotenv()
+TOKEN = os.getenv('DISCORD_TOKEN')
+client = discord.Client()
 
 # REST events
 @client.event
@@ -57,7 +79,7 @@ async def on_ready():
 
 @client.event
 async def on_reaction_add(reaction, user):
-    if reaction.message.author.bot:
+    if reaction.message.author.bot and reaction.emoji == "❌":
         await reaction.message.delete()
     return
 
@@ -71,44 +93,15 @@ async def on_message(message):
                 if unidecode.unidecode(items['name'].lower()) in unidecode.unidecode(message.content.lower()) and unidecode.unidecode(message.content.lower()[3:]) == unidecode.unidecode(items['name'].lower()):
 
                     if items['slot'] == 1:
-                        if items['typeId'] == 1:
-                            itype = "Sword"
-                        elif items['typeId'] == 2:
-                            itype = "Sword & Shield"
-                        elif items['typeId'] == 3:
-                            itype = "Mace"
-                        elif items['typeId'] == 4:
-                            itype = "Bow"
-                        elif items['typeId'] == 5:
-                            itype = "Staff"
-                        elif items['typeId'] == 7:
-                            itype = "Magic Device"
-                        elif items['typeId'] == 8:
-                            itype = "Twin Blades"
-                        elif items['typeId'] == 9:
-                            itype = "Scythe"
-                        elif items['typeId'] == 10:
-                            itype = "Spear"
-                        elif items['typeId'] == 11:
-                            itype = "Cannon"
-                        elif items['typeId'] == 12:
-                            itype = "Axe"
-                    elif items['slot'] == 2:
-                        itype = "Head Slot"
-                    elif items['slot'] == 3:
-                        itype = "Top"
-                    elif items['slot'] == 4:
-                        itype = "Bottom"
-                    elif items['slot'] == 5:
-                        itype = "Upper Slot"
-                    elif items['slot'] == 6:
-                        itype = "Lowwer Slot"
+                        itype = WeaponType(items['typeId']).name
+                    else:
+                        itype = ItemType(items['slot']).name
 
                     #initialize embed
                     embed = discord.Embed(title="***" + items['name'] + "***" + "\n"
                                                 + str(items['rarity']) + "★" + " - "
                                                 + WeaponElement(items['elementAffinity']).name + " - "
-                                                + itype,
+                                                + itype.replace("_"," "),
                                           color=WeaponElementColor[WeaponElement(items['elementAffinity']).name].value)
 
                     embed.add_field(name = "***Stats Lvl 50-70***", value =
@@ -197,42 +190,14 @@ async def on_message(message):
     elif '.t' in message.content or '.T' in message.content:
 
         response = "```"
+
         for items in equipData['BookList']:
             itype = ""
-            if items['slot'] == 1 and items['rarity'] == 4:
-                if items['typeId'] == 1:
-                    itype = "Sword"
-                elif items['typeId'] == 2:
-                    itype = "Sword & Shield"
-                elif items['typeId'] == 3:
-                    itype = "Mace"
-                elif items['typeId'] == 4:
-                    itype = "Bow"
-                elif items['typeId'] == 5:
-                    itype = "Staff"
-                elif items['typeId'] == 7:
-                    itype = "Magic Device"
-                elif items['typeId'] == 8:
-                    itype = "Twin Blades"
-                elif items['typeId'] == 9:
-                    itype = "Scythe"
-                elif items['typeId'] == 10:
-                    itype = "Spear"
-                elif items['typeId'] == 11:
-                    itype = "Cannon"
-                elif items['typeId'] == 12:
-                    itype = "Axe"
-            elif items['slot'] == 2:
-                itype = "Head Slot"
-            elif items['slot'] == 3:
-                itype = "Top"
-            elif items['slot'] == 4:
-                itype = "Bottom"
-            elif items['slot'] == 5:
-                itype = "Upper Slot"
-            elif items['slot'] == 6:
-                itype = "Lowwer Slot"
-            if message.content.lower()[3:] in itype.lower():
+            if items['slot'] == 1:
+                itype = WeaponType(items['typeId']).name
+            else:
+                itype = ItemType(items['slot']).name
+            if message.content.lower()[3:] in itype.lower().replace("_"," "):
                 response += items['name'] + ", "
         response = response[:-2]
 
