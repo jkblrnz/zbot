@@ -87,10 +87,12 @@ async def on_reaction_add(reaction, user):
 async def on_message(message):
     if message.author.bot: return
     if message.author == client.user: return
+    messageName = unidecode.unidecode(message.content.lower())
 
     if '.i' in message.content or '.I' in message.content:
             for items in equipData['BookList']:
-                if unidecode.unidecode(items['name'].lower()) in unidecode.unidecode(message.content.lower()) and unidecode.unidecode(message.content.lower()[3:]) == unidecode.unidecode(items['name'].lower()):
+                itemName = unidecode.unidecode(items['name'].lower())
+                if itemName in messageName and messageName[3:] == itemName:
 
                     if items['slot'] == 1:
                         itype = WeaponType(items['typeId']).name
