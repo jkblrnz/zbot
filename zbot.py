@@ -21,31 +21,29 @@ class WeaponElementColor(Enum):
     Water = discord.Color.blue()
     Fire = discord.Color.red()
 
-
-
 # connect
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 client = discord.Client()
 
 # open and load relevant json files
-with open('equipmentItem') as json_file:
-    f = open('equipmentItem')
+with open('json/equipmentItem') as json_file:
+    f = open('json/equipmentItem')
     equipData = json.load(f)
     f.close
 
-with open('commandSkill') as json_file:
-    f = open('commandSkill')
+with open('json/commandSkill') as json_file:
+    f = open('json/commandSkill')
     skillData = json.load(f)
     f.close
 
-with open('combinedPassiveSkill') as json_file:
-    f = open('combinedPassiveSkill')
+with open('json/combinedPassiveSkill') as json_file:
+    f = open('json/combinedPassiveSkill')
     combinedPassiveSkillData = json.load(f)
     f.close
 
-with open('passiveSkill') as json_file:
-    f = open('passiveSkill')
+with open('json/passiveSkill') as json_file:
+    f = open('json/passiveSkill')
     passiveSkillData = json.load(f)
     f.close
 
@@ -109,7 +107,7 @@ async def on_message(message):
                     #initialize embed
                     embed = discord.Embed(title="***" + items['name'] + "***" + "\n"
                                                 + str(items['rarity']) + "★" + " - "
-                                                + WeaponType(items['elementAffinity']).name + " - "
+                                                + WeaponElement(items['elementAffinity']).name + " - "
                                                 + itype,
                                           color=WeaponElementColor[WeaponElement(items['elementAffinity']).name].value)
 
