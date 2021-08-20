@@ -8,7 +8,7 @@ def main():
     load_dotenv()
     TOKEN = os.getenv('DISCORD_TOKEN')
     client = commands.Bot(command_prefix='!')
-    client.load_extension("lookUp")
+    client.load_extension("cogs.lookUp")
     client.run(TOKEN)
 
 if __name__ == "__main__":
