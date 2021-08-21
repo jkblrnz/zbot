@@ -68,6 +68,7 @@ class ItemType(Enum):
 class lookUp(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.intnum = 1
 
     # REST events
     @commands.Cog.listener("on_ready")
@@ -76,17 +77,22 @@ class lookUp(commands.Cog):
         for guild in client.bot.guilds:
             print(f'{guild.name}(id: {guild.id})')
 
-    @commands.Cog.listener("on_reaction")
-    async def remove(reaction, user):
+    @commands.command(name="h")
+    async def help(client, message):
+        helpStr = ".i for information\n.s to search a name\n.t for search by type (magic devices is big list)\nreact with ❌ to delete a message"
+        await message.channel.send(helpStr)
+
+    @commands.Cog.listener("on_reaction_add")
+    async def remove(message, reaction, user):
         if reaction.message.author.bot and reaction.emoji == "❌":
             await reaction.message.delete()
         return
 
     @commands.Cog.listener("on_message")
     async def information(client, message):
-        if message.author.bot: return
+        if message.author.bot:
+            return
         messageName = unidecode(message.content.lower())
-
         if '.i' in message.content or '.I' in message.content:
                 for items in equipData['BookList']:
                     itemName = unidecode(items['name'].lower())
@@ -95,7 +101,7 @@ class lookUp(commands.Cog):
                         if items['slot'] == 1:
                             itype = WeaponType(items['typeId']).name
                         else:
-                            itype = itemType(items['slot']).name
+                            itype = ItemType(items['slot']).name
 
                         #initialize embed
                         embed = discord.Embed(title="***" + items['name'] + "***" + "\n"
@@ -115,6 +121,7 @@ class lookUp(commands.Cog):
                         for skill in skillData['BookList']:
                             if skill['id'] == items['skillId']:
 
+                                #movement type
                                 if skill['rowTypeAfterCast'] == 1:
                                     arrow = "ᐅ"
                                 elif skill['rowTypeAfterCast'] == 2:
@@ -126,7 +133,6 @@ class lookUp(commands.Cog):
                                 level = 1
                                 minCooldown = eval(skill['cooldown'])
                                 minEnhancedCooldown = eval(skill['enhancedCooldown'])
-
                                 level = 9
                                 maxCooldown = eval(skill['cooldown'])
                                 maxEnhancedCooldown = eval(skill['enhancedCooldown'])
@@ -148,6 +154,7 @@ class lookUp(commands.Cog):
                                                 value = str(skill['displayForReinforcement'] + '\n'),
                                                 inline = True)
 
+                        #item skills are located in a seperate json object requiring a seprate search
                         for passive in passiveSkillData['BookList']:
                             if passive['id'] == items['skillId']:
                                 embed.add_field(name = "***Skill***", value =
@@ -155,6 +162,8 @@ class lookUp(commands.Cog):
                                                 str(passive['displayForReinforcement']),
                                                 inline = True)
                                 valueString = ""
+                                #synths are in seprate json object and each armor should have one so safe to assume
+                                #armorUnit tests this assertion
                                 for combinedPassives in items['combinedPassiveSkillIds']:
                                     for combined in combinedPassiveSkillData['BookList']:
                                         if combined['id'] == combinedPassives:
@@ -173,6 +182,8 @@ class lookUp(commands.Cog):
 
     @commands.Cog.listener("on_message")
     async def search(client, message):
+        if message.author.bot:
+            return
         if '.s' in message.content or '.S' in  message.content:
 
             response = "```"
@@ -191,6 +202,8 @@ class lookUp(commands.Cog):
 
     @commands.Cog.listener("on_message")
     async def typeSearch(client, message):
+        if message.author.bot:
+            return
         if '.t' in message.content or '.T' in message.content:
 
             response = "```"
