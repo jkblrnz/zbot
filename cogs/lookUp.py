@@ -68,6 +68,7 @@ class ItemType(Enum):
 class lookUp(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.intnum = 1
 
     # REST events
     @commands.Cog.listener("on_ready")
@@ -84,9 +85,9 @@ class lookUp(commands.Cog):
 
     @commands.Cog.listener("on_message")
     async def information(client, message):
-        if message.author.bot: return
+        if message.author.bot:
+            return
         messageName = unidecode(message.content.lower())
-
         if '.i' in message.content or '.I' in message.content:
                 for items in equipData['BookList']:
                     itemName = unidecode(items['name'].lower())
@@ -115,6 +116,7 @@ class lookUp(commands.Cog):
                         for skill in skillData['BookList']:
                             if skill['id'] == items['skillId']:
 
+                                #movement type
                                 if skill['rowTypeAfterCast'] == 1:
                                     arrow = "ᐅ"
                                 elif skill['rowTypeAfterCast'] == 2:
@@ -126,7 +128,6 @@ class lookUp(commands.Cog):
                                 level = 1
                                 minCooldown = eval(skill['cooldown'])
                                 minEnhancedCooldown = eval(skill['enhancedCooldown'])
-
                                 level = 9
                                 maxCooldown = eval(skill['cooldown'])
                                 maxEnhancedCooldown = eval(skill['enhancedCooldown'])
@@ -148,6 +149,7 @@ class lookUp(commands.Cog):
                                                 value = str(skill['displayForReinforcement'] + '\n'),
                                                 inline = True)
 
+                        #item skills are located in a seperate json object requiring a seprate search
                         for passive in passiveSkillData['BookList']:
                             if passive['id'] == items['skillId']:
                                 embed.add_field(name = "***Skill***", value =
@@ -155,6 +157,8 @@ class lookUp(commands.Cog):
                                                 str(passive['displayForReinforcement']),
                                                 inline = True)
                                 valueString = ""
+                                #synths are in seprate json object and each armor should have one so safe to assume
+                                #armorUnit tests this assertion
                                 for combinedPassives in items['combinedPassiveSkillIds']:
                                     for combined in combinedPassiveSkillData['BookList']:
                                         if combined['id'] == combinedPassives:
@@ -209,6 +213,8 @@ class lookUp(commands.Cog):
                 response += "``No Matches"
 
             response += "```"
+
+            print(intnum)
 
             await message.channel.send(response)
 
