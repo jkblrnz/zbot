@@ -77,8 +77,13 @@ class lookUp(commands.Cog):
         for guild in client.bot.guilds:
             print(f'{guild.name}(id: {guild.id})')
 
-    @commands.Cog.listener("on_reaction")
-    async def remove(reaction, user):
+    @commands.command(name="h")
+    async def help(client, message):
+        helpStr = ".i for information\n.s to search a name\n.t for search by type (magic devices is big list)\nreact with ❌ to delete a message"
+        await message.channel.send(helpStr)
+
+    @commands.Cog.listener("on_reaction_add")
+    async def remove(message, reaction, user):
         if reaction.message.author.bot and reaction.emoji == "❌":
             await reaction.message.delete()
         return
@@ -96,7 +101,7 @@ class lookUp(commands.Cog):
                         if items['slot'] == 1:
                             itype = WeaponType(items['typeId']).name
                         else:
-                            itype = itemType(items['slot']).name
+                            itype = ItemType(items['slot']).name
 
                         #initialize embed
                         embed = discord.Embed(title="***" + items['name'] + "***" + "\n"
@@ -177,6 +182,8 @@ class lookUp(commands.Cog):
 
     @commands.Cog.listener("on_message")
     async def search(client, message):
+        if message.author.bot:
+            return
         if '.s' in message.content or '.S' in  message.content:
 
             response = "```"
@@ -195,6 +202,8 @@ class lookUp(commands.Cog):
 
     @commands.Cog.listener("on_message")
     async def typeSearch(client, message):
+        if message.author.bot:
+            return
         if '.t' in message.content or '.T' in message.content:
 
             response = "```"
@@ -213,8 +222,6 @@ class lookUp(commands.Cog):
                 response += "``No Matches"
 
             response += "```"
-
-            print(intnum)
 
             await message.channel.send(response)
 

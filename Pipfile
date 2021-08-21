@@ -8,6 +8,7 @@ requests = "*"
 unidecode = "*"
 discord = "*"
 enum34 = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
