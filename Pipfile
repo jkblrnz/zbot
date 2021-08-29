@@ -9,6 +9,8 @@ unidecode = "*"
 discord = "*"
 enum34 = "*"
 python-dotenv = "*"
+discord-py-slash-command = "*"
+discord-py-interactions = "*"
 
 [dev-packages]
 

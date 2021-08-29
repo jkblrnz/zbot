@@ -1,9 +1,13 @@
-from dotenv import load_dotenv
-from enum import Enum
-from discord.ext import commands
-from unidecode import unidecode
 import discord
+from discord.ext import commands
+import discord_slash
+from discord_slash import cog_ext, SlashContext
+
+from enum import Enum
+from unidecode import unidecode
 import json
+
+guildID = [870765414374854736]
 
 # open and load relevant json files
 with open('json/equipmentItem') as json_file:
@@ -63,12 +67,11 @@ class ItemType(Enum):
     Top = 3
     Bottom = 4
     Upper_Slot = 5
-    Lowwer_Slot = 6
+    Lower_Slot = 6
 
 class lookUp(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.intnum = 1
 
     # REST events
     @commands.Cog.listener("on_ready")
@@ -77,153 +80,138 @@ class lookUp(commands.Cog):
         for guild in client.bot.guilds:
             print(f'{guild.name}(id: {guild.id})')
 
-    @commands.command(name="h")
-    async def help(client, message):
-        helpStr = ".i for information\n.s to search a name\n.t for search by type (magic devices is big list)\nreact with ❌ to delete a message"
-        await message.channel.send(helpStr)
-
     @commands.Cog.listener("on_reaction_add")
     async def remove(message, reaction, user):
         if reaction.message.author.bot and reaction.emoji == "❌":
             await reaction.message.delete()
-        return
 
-    @commands.Cog.listener("on_message")
-    async def information(client, message):
-        if message.author.bot:
-            return
-        messageName = unidecode(message.content.lower())
-        if '.i' in message.content or '.I' in message.content:
-                for items in equipData['BookList']:
-                    itemName = unidecode(items['name'].lower())
-                    if itemName in messageName and messageName[3:] == itemName:
-
-                        if items['slot'] == 1:
-                            itype = WeaponType(items['typeId']).name
-                        else:
-                            itype = ItemType(items['slot']).name
-
-                        #initialize embed
-                        embed = discord.Embed(title="***" + items['name'] + "***" + "\n"
-                                                    + str(items['rarity']) + "★" + " - "
-                                                    + WeaponElement(items['elementAffinity']).name + " - "
-                                                    + itype.replace("_"," "),
-                                              color=WeaponElementColor[WeaponElement(items['elementAffinity']).name].value)
-
-                        embed.add_field(name = "***Stats Lvl 50-70***", value =
-                                        "HP: " + str(items['maxStat']['maxHitPoint']) + " - " + str(items['limitBreakMaxStat']['maxHitPoint'])+'\n'+
-                                        "MATK: " + str(items['maxStat']['spellPower']) + " - " + str(items['limitBreakMaxStat']['spellPower'])+'\n'+
-                                        "PATK: " + str(items['maxStat']['physicalPower']) + " - " + str(items['limitBreakMaxStat']['physicalPower'])+'\n'+
-                                        "MDEF: " + str(items['maxStat']['spellResist']) + " - " + str(items['limitBreakMaxStat']['spellResist'])+'\n'+
-                                        "PDEF: " + str(items['maxStat']['physicalResist']) + " - " + str(items['limitBreakMaxStat']['physicalResist']),
-                                        inline = True)
-
-                        for skill in skillData['BookList']:
-                            if skill['id'] == items['skillId']:
-
-                                #movement type
-                                if skill['rowTypeAfterCast'] == 1:
-                                    arrow = "ᐅ"
-                                elif skill['rowTypeAfterCast'] == 2:
-                                    arrow = "ᐊ"
-                                else:
-                                    arrow = "X"
-
-                                # eval cooldown formula within the json with level variable
-                                level = 1
-                                minCooldown = eval(skill['cooldown'])
-                                minEnhancedCooldown = eval(skill['enhancedCooldown'])
-                                level = 9
-                                maxCooldown = eval(skill['cooldown'])
-                                maxEnhancedCooldown = eval(skill['enhancedCooldown'])
-
-                                embed.add_field(name = "***" + str(skill['name']) + "***"
-                                                + " Cast: " + str(int(skill['castDuration']) / 10)
-                                                + " CD: " + str(minCooldown / 10) + " - " + str(maxCooldown / 10)
-                                                + " " + arrow ,
-                                                value = str(skill['display'] + '\n'),
-                                                inline = True)
-
-                                embed.add_field(name = "***Dragon***"
-                                                + " Cast: " + str(int(skill['enhancedCastDuration']) / 10)
-                                                + " CD: " + str(minEnhancedCooldown / 10) + " - " + str(maxEnhancedCooldown / 10),
-                                                value = str(skill['displayForEnhancement'] + '\n'),
-                                                inline = True)
-
-                                embed.add_field(name = "***Enhancement***",
-                                                value = str(skill['displayForReinforcement'] + '\n'),
-                                                inline = True)
-
-                        #item skills are located in a seperate json object requiring a seprate search
-                        for passive in passiveSkillData['BookList']:
-                            if passive['id'] == items['skillId']:
-                                embed.add_field(name = "***Skill***", value =
-                                                str(passive['display']) + '\n' +
-                                                str(passive['displayForReinforcement']),
-                                                inline = True)
-                                valueString = ""
-                                #synths are in seprate json object and each armor should have one so safe to assume
-                                #armorUnit tests this assertion
-                                for combinedPassives in items['combinedPassiveSkillIds']:
-                                    for combined in combinedPassiveSkillData['BookList']:
-                                        if combined['id'] == combinedPassives:
-                                            valueString += "**" + combined['name'] + "**" + '\n' + combined['display'] + '\n'
-
-                                embed.add_field(name = "***Synths***", value =
-                                                valueString,
-                                                inline = True)
-
-                        await message.channel.send(embed=embed)
-                        return
-                else:
-                    response = '```no such weapon (exact match required)```'
-                    await message.channel.send(response)
-                    return
-
-    @commands.Cog.listener("on_message")
-    async def search(client, message):
-        if message.author.bot:
-            return
-        if '.s' in message.content or '.S' in  message.content:
-
-            response = "```"
-
-            for items in equipData['BookList']:
-                if message.content.lower()[3:] in unidecode(items['name'].lower()):
-                    response += items['name'] + ", "
-            response = response[:-2]
-
-            if len(response) == 1:
-                response += "``No Matches"
-
-            response += "```"
-
-            await message.channel.send(response)
-
-    @commands.Cog.listener("on_message")
-    async def typeSearch(client, message):
-        if message.author.bot:
-            return
-        if '.t' in message.content or '.T' in message.content:
-
-            response = "```"
-
-            for items in equipData['BookList']:
-                itype = ""
+    @cog_ext.cog_slash(name="item", description="Search for a particular item", guild_ids = guildID)
+    async def item(self, ctx: discord_slash.SlashContext, name):
+        messageName = unidecode(name.lower())
+        for items in equipData['BookList']:
+            itemName = unidecode(items['name'].lower())
+            itemId = str(items['id'])
+            if (messageName in itemName or itemId == messageName) or messageName in itemId:
                 if items['slot'] == 1:
                     itype = WeaponType(items['typeId']).name
                 else:
                     itype = ItemType(items['slot']).name
-                if message.content.lower()[3:] in itype.lower().replace("_"," "):
-                    response += items['name'] + ", "
-            response = response[:-2]
 
-            if len(response) == 1:
-                response += "``No Matches"
+                #initialize embed
+                embed = discord.Embed(title= "[R" + items['rarity'] * "★" + "] "
+                                            + "***" + str(items['name']) + "***" + " - "
+                                            + itype.replace("_"," ") + ": " + WeaponElement(items['elementAffinity']).name,
+                                      color=WeaponElementColor[WeaponElement(items['elementAffinity']).name].value)
 
-            response += "```"
+                embed.add_field(name = "***Stats***", value =
+                                "***LV*** : " + "50-70"+'\n'+
+                                "***HP*** : " + str(items['maxStat']['maxHitPoint']) + " - " + str(items['limitBreakMaxStat']['maxHitPoint'])+'\n'
+                                "***CRIT*** : " + str(items['maxStat']['critChance'] * 100) + " - " + str(items['limitBreakMaxStat']['critChance'] * 100),
+                                inline = True)
+                embed.add_field(name = '​', value =
+                                "***PATK*** : " + str(items['maxStat']['physicalPower']) + " - " + str(items['limitBreakMaxStat']['physicalPower'])+'\n'+
+                                "***MATK*** : " + str(items['maxStat']['spellPower']) + " - " + str(items['limitBreakMaxStat']['spellPower'])+'\n'+
+                                "***Accuracy*** : " + str(items['maxStat']['hitRating']) + " - " + str(items['limitBreakMaxStat']['hitRating']),
+                                inline = True)
+                embed.add_field(name = '​', value =
+                                "***PDEF*** : " + str(items['maxStat']['physicalResist']) + " - " + str(items['limitBreakMaxStat']['physicalResist'])+'\n'+
+                                "***MDEF*** : " + str(items['maxStat']['spellResist']) + " - " + str(items['limitBreakMaxStat']['spellResist'])+'\n'+
+                                "***Evasion*** : " + str(items['maxStat']['evasionRating']) + " - " + str(items['limitBreakMaxStat']['evasionRating']),
+                                inline = True)
 
-            await message.channel.send(response)
+                for skill in skillData['BookList']:
+                    if skill['id'] == items['skillId']:
+                        #movement type
+                        if skill['rowTypeAfterCast'] == 1:
+                            arrow = "ᐅ"
+                        elif skill['rowTypeAfterCast'] == 2:
+                            arrow = "ᐊ"
+                        else:
+                            arrow = "X"
+
+                        # eval cooldown formula within the json with level variable
+                        level = 1
+                        minCooldown = int(eval(skill['cooldown']))
+                        minEnhancedCooldown = int(eval(skill['enhancedCooldown']))
+                        level = 9
+                        maxCooldown = int(eval(skill['cooldown']))
+                        maxEnhancedCooldown = int(eval(skill['enhancedCooldown']))
+
+                        embed.add_field(name = "***" + str(skill['name']) + "***"
+                                        + "  - " + " Cast: " + str(int(skill['castDuration']) / 10) + 's'
+                                        + " CD: " + str(minCooldown / 10) + "-" + str(maxCooldown / 10) + 's'
+                                        + " " + arrow ,
+                                        value = str(skill['display'] + '\n'),
+                                        inline = False)
+
+                        embed.add_field(name = "***Dragon***"
+                                        + "  - " + " Cast: " + str(int(skill['enhancedCastDuration']) / 10) + 's'
+                                        + " CD: " + str(minEnhancedCooldown / 10) + "-" + str(maxEnhancedCooldown / 10) + 's',
+                                        value = str(skill['displayForEnhancement'] + '\n'),
+                                        inline = False)
+
+                        embed.add_field(name = "***Enhancement***",
+                                        value = str(skill['displayForReinforcement'] + '\n'),
+                                        inline = False)
+
+                #item skills are located in a seperate json object requiring a seprate search
+                for passive in passiveSkillData['BookList']:
+                    if passive['id'] == items['skillId']:
+                        embed.add_field(name = "***Skill***", value =
+                                        str(passive['display']) + '\n' +
+                                        str(passive['displayForReinforcement']),
+                                        inline = False)
+                        valueString = "​"
+                        #synths are in seprate json object and each armor should have one so safe to assume
+                        #armorUnit tests this assertion
+                        for combinedPassives in items['combinedPassiveSkillIds']:
+                            for combined in combinedPassiveSkillData['BookList']:
+                                if combined['id'] == combinedPassives:
+                                    valueString += "**" + combined['name'] + "**" + '\n' + combined['display'] + '\n'
+
+                        embed.add_field(name = "***Synths***", value =
+                                        valueString,
+                                        inline = False)
+
+                await ctx.send(embed=embed)
+                return
+        else:
+            response = "```no such weapon (exact match required)```"
+            await ctx.send(response, hidden=True)
+            return
+
+    @cog_ext.cog_slash(name="search", description="Search for items with a matching name", guild_ids = guildID)
+    async def search(self, ctx: discord_slash.SlashContext, name):
+       response = "```"
+       for items in equipData['BookList']:
+           if name.lower() in unidecode(items['name'].lower()):
+               response += items['name'] + ":" + str(items['rarity']) + ":" + str(items['id']) + ", "
+       response = response[:-2] + "```"
+
+       if len(response) == 4:
+           response = "```No Matches```"
+           await ctx.send(response, hidden=True)
+
+       await ctx.send(response, hidden=True)
+
+    @cog_ext.cog_slash(name="type", description="Search for all items of a ceartin type", guild_ids = guildID)
+    async def type(self, ctx: discord_slash.SlashContext, item_type):
+        response = "```"
+        for items in equipData['BookList']:
+            if items['slot'] == 1:
+                itype = WeaponType(items['typeId']).name
+            else:
+                itype = ItemType(items['slot']).name
+
+            if item_type.lower() in itype.lower().replace("_"," "):
+                response += items['name'] + ", "
+        response = response[:-2] + "```"
+
+        if len(response) == 4:
+            response = "```No Matches```"
+            await ctx.send(response, hidden=True)
+
+        await ctx.send(response, hidden=True)
 
 def setup(bot):
     bot.add_cog(lookUp(bot))
