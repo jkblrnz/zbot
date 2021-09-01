@@ -7,7 +7,7 @@ from enum import Enum
 from unidecode import unidecode
 import json
 
-guildID = [870765414374854736]
+guildID = [870765414374854736, 882096026775855184]
 
 # open and load relevant json files
 with open('json/equipmentItem') as json_file:
@@ -85,8 +85,10 @@ class lookUp(commands.Cog):
         if reaction.message.author.bot and reaction.emoji == "❌":
             await reaction.message.delete()
 
-    @cog_ext.cog_slash(name="item", description="Search for a particular item", guild_ids = guildID)
+    @cog_ext.cog_slash(name="item", description="Search for a particular item.", guild_ids = guildID)
     async def item(self, ctx: discord_slash.SlashContext, name):
+        if ctx.author == self.bot.user: return
+        if ctx.author.bot: return
         messageName = unidecode(name.lower())
         for items in equipData['BookList']:
             itemName = unidecode(items['name'].lower())
@@ -180,8 +182,11 @@ class lookUp(commands.Cog):
             await ctx.send(response, hidden=True)
             return
 
-    @cog_ext.cog_slash(name="search", description="Search for items with a matching name", guild_ids = guildID)
+    @cog_ext.cog_slash(name="search", description="Search for items with a matching name.", guild_ids = guildID)
     async def search(self, ctx: discord_slash.SlashContext, name):
+       if ctx.author == self.bot.user: return
+       if ctx.author.bot: return
+
        response = "```"
        for items in equipData['BookList']:
            if name.lower() in unidecode(items['name'].lower()):
@@ -191,11 +196,13 @@ class lookUp(commands.Cog):
        if len(response) == 4:
            response = "```No Matches```"
            await ctx.send(response, hidden=True)
+       else:
+           await ctx.send(response, hidden=True)
 
-       await ctx.send(response, hidden=True)
-
-    @cog_ext.cog_slash(name="type", description="Search for all items of a ceartin type", guild_ids = guildID)
+    @cog_ext.cog_slash(name="type", description="Search for all items of a ceartin type.  Returns name:rarity:id.", guild_ids = guildID)
     async def type(self, ctx: discord_slash.SlashContext, item_type):
+        if ctx.author == self.bot.user: return
+        if ctx.author.bot: return
         response = "```"
         for items in equipData['BookList']:
             if items['slot'] == 1:
@@ -210,8 +217,8 @@ class lookUp(commands.Cog):
         if len(response) == 4:
             response = "```No Matches```"
             await ctx.send(response, hidden=True)
-
-        await ctx.send(response, hidden=True)
+        else:
+            await ctx.send(response, hidden=True)
 
 def setup(bot):
     bot.add_cog(lookUp(bot))
