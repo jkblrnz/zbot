@@ -11,6 +11,9 @@ enum34 = "*"
 python-dotenv = "*"
 discord-py-slash-command = "*"
 discord-py-interactions = "*"
+requests-futures = "*"
+grequests = "*"
+aenum = "*"
 
 [dev-packages]
 
