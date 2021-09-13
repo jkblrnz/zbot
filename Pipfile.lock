@@ -111,6 +111,7 @@
             "index": "pypi",
             "version": "==1.7.3"
         },
+<<<<<<< HEAD
         "discord-py-interactions": {
             "hashes": [
                 "sha256:14f11c2333a2287991abfe5169cd7be5d25fdaadec546f0da6cbd3de00fc75bd",
@@ -127,6 +128,8 @@
             "index": "pypi",
             "version": "==3.0.1"
         },
+=======
+>>>>>>> c2466568e96aa57764de13719e05a132854c14a8
         "discord.py": {
             "hashes": [
                 "sha256:462cd0fe307aef8b29cbfa8dd613e548ae4b2cb581d46da9ac0d46fb6ea19408",
@@ -143,6 +146,7 @@
             "index": "pypi",
             "version": "==1.1.10"
         },
+<<<<<<< HEAD
         "gevent": {
             "hashes": [
                 "sha256:02d1e8ca227d0ab0b7917fd7e411f9a534475e0a41fb6f434e9264b20155201a",
@@ -238,11 +242,17 @@
             "index": "pypi",
             "version": "==0.6.0"
         },
+=======
+>>>>>>> c2466568e96aa57764de13719e05a132854c14a8
         "idna": {
             "hashes": [
                 "sha256:14475042e284991034cb48e06f6851428fb14c4dc953acd9be9a5e95c7b6dd7a",
                 "sha256:467fbad99067910785144ce333826c71fb0e63a425657295239737f7ecd125f3"
             ],
+<<<<<<< HEAD
+=======
+            "markers": "python_version >= '3'",
+>>>>>>> c2466568e96aa57764de13719e05a132854c14a8
             "version": "==3.2"
         },
         "multidict": {
@@ -303,6 +313,7 @@
             "index": "pypi",
             "version": "==2.26.0"
         },
+<<<<<<< HEAD
         "requests-futures": {
             "hashes": [
                 "sha256:35547502bf1958044716a03a2f47092a89efe8f9789ab0c4c528d9c9c30bc148"
@@ -325,6 +336,23 @@
             ],
             "index": "pypi",
             "version": "==1.3.1"
+=======
+        "typing-extensions": {
+            "hashes": [
+                "sha256:0ac0f89795dd19de6b97debb0c6af1c70987fd80a2d62d1958f7e56fcc31b497",
+                "sha256:50b6f157849174217d0656f99dc82fe932884fb250826c18350e159ec6cdf342",
+                "sha256:779383f6086d90c99ae41cf0ff39aac8a7937a9283ce0a414e5dd782f4c94a84"
+            ],
+            "version": "==3.10.0.0"
+        },
+        "unidecode": {
+            "hashes": [
+                "sha256:12435ef2fc4cdfd9cf1035a1db7e98b6b047fe591892e81f34e94959591fad00",
+                "sha256:8d73a97d387a956922344f6b74243c2c6771594659778744b2dbdaad8f6b727d"
+            ],
+            "index": "pypi",
+            "version": "==1.2.0"
+>>>>>>> c2466568e96aa57764de13719e05a132854c14a8
         },
         "urllib3": {
             "hashes": [
@@ -374,6 +402,7 @@
                 "sha256:fcbb48a93e8699eae920f8d92f7160c03567b421bc17362a9ffbbd706a816f71"
             ],
             "version": "==1.6.3"
+<<<<<<< HEAD
         },
         "zope.event": {
             "hashes": [
@@ -437,6 +466,8 @@
                 "sha256:f7ee479e96f7ee350db1cf24afa5685a5899e2b34992fb99e1f7c1b0b758d263"
             ],
             "version": "==5.4.0"
+=======
+>>>>>>> c2466568e96aa57764de13719e05a132854c14a8
         }
     },
     "develop": {}
