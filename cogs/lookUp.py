@@ -134,7 +134,7 @@ class lookUp(commands.Cog):
     async def remove(message, reaction, user):
         if reaction.message.author.bot and reaction.emoji == "❌":
             await reaction.message.delete()
-
+            
     @cog_ext.cog_slash(name="item", description="Search for a particular item.", guild_ids = guildList)
     async def item(self, ctx: discord_slash.SlashContext, name):
         if ctx.author.bot: return
@@ -147,7 +147,7 @@ class lookUp(commands.Cog):
                     itype = WeaponType(items['typeId']).name
                 else:
                     itype = ItemType(items['slot']).name
-
+                    
                 #initialize embed
                 embed = discord.Embed(title= "[R" + items['rarity'] * "★" + "] "
                                             + "***" + str(items['name']) + "***" + " - "
