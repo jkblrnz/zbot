@@ -64,7 +64,7 @@ class ItemType(Enum):
     Lower_Slot = 6
 
 # this class has partial searches so needs to be managed carefully
-class Boss(Enum):
+class BossEx(Enum):
     Hildegard = auto()
     Matilda_And_Hildegard = auto()
     Matilda_And_Upa_Jellyfish = auto()
@@ -90,6 +90,30 @@ class Boss(Enum):
     Triwhisp = auto()
     Rem_Nawis = auto()
     Ines = auto()
+    Grothvarg_Rebirthed = auto()
+    Grothvarg = auto()
+
+class BossGb(Enum):
+    Pehn = auto()
+    Mazandor = auto()
+    Malagna = auto()
+    Aspidochelone = auto()
+    Warlugan = auto()
+    Dismurte = auto()
+    Ulteriness = auto()
+    Furnav_Moth = auto()
+    Isvaal = auto()
+    Kelkrus = auto()
+    Giganturus = auto()
+    Anemorabius = auto()
+    Feluze = auto()
+    Envisoeur = auto()
+    Ember_Fox = auto()
+    King_Cat_Sith = auto()
+    Agunios = auto()
+    Venomush = auto()
+    Rikelnok = auto()
+    Auguste = auto()
 
 class lookUp(commands.Cog):
 
@@ -275,27 +299,39 @@ class lookUp(commands.Cog):
 
         # this solution finds first parital match so Boss enum needs to be carfully managed
         bossName = ''
-        for bosses in Boss.__members__:
+        for bosses in set(BossEx.__members__):
             if boss.lower() in bosses.lower().replace("_"," "):
                 bossName = bosses
-                print(bosses.name.value[1])
                 break
 
         if bossName != '':
              response = requests.get("https://altema-mitrasphere.com/" + bossName.replace("_",""))
              if "404-img.png" in str(response.content): #altema doesn't return right code so look for their 404 img
-                 await ctx.send("```Boss not found on altema```", hidden=True)
+                 await ctx.send("```BossEx not found on altema```", hidden=True)
              else:
                  await ctx.send("https://altema-mitrasphere.com/" + bossName.replace("_","").replace("And",""))
         else:
-             await ctx.send("```Boss not found in database```", hidden=True)
+            bossName = ''
+            for bosses in set(BossGb.__members__):
+                if boss.lower() in bosses.lower().replace("_"," "):
+                    bossName = bosses
+                    break
 
-    @cog_ext.cog_slash(name="bossList", description="Get a list of all possible bosses.", guild_ids = guildList)
-    async def bossList(self, ctx: discord_slash.SlashContext):
+            if bossName != '':
+                 response = requests.get("https://altema-mitrasphere.com/" + bossName.replace("_",""))
+                 if "404-img.png" in str(response.content): #altema doesn't return right code so look for their 404 img
+                     await ctx.send("```BossGb not found on altema```", hidden=True)
+                 else:
+                     await ctx.send("https://altema-mitrasphere.com/" + bossName.replace("_","").replace("And",""))
+            else:
+                await ctx.send("```BossEx not found in database```", hidden=True)
+
+    @cog_ext.cog_slash(name="EX", description="Get a list of all possible EX bosses.", guild_ids = guildList)
+    async def EX(self, ctx: discord_slash.SlashContext):
         if ctx.author.bot: return
 
         urls = []
-        for bosses in Boss.__members__:
+        for bosses in BossEx.__members__: #find a solid alternative to __members__
             urls.append("https://altema-mitrasphere.com/" + bosses.replace("_","").replace("And",""))
         rs = (grequests.get(u) for u in urls)
         responses = grequests.map(rs)
@@ -304,12 +340,32 @@ class lookUp(commands.Cog):
         for x in range(len(responses)):
             target = re.compile("404-img.png")
             if target.search(str(responses[x].content)): #altema doesn't return the right code so look for the 404 img
-                lst += Boss(x + 1).name.replace("_"," ") + '\n'
+                lst += BossEx(x + 1).name.replace("_"," ") + '\n'
             else:
-                lst += '[' + Boss(x + 1).name.replace("_", " ") + ']' + "(https://altema-mitrasphere.com/" + Boss(x + 1).name.replace("_","").replace("And","") + ')' + '\n'
+                lst += '[' + BossEx(x + 1).name.replace("_", " ") + ']' + "(https://altema-mitrasphere.com/" + BossEx(x + 1).name.replace("_","").replace("And","") + ')' + '\n'
 
         embed = discord.Embed(description=lst)
         await ctx.send(embed=embed, hidden=True)
 
+    @cog_ext.cog_slash(name="GB", description="Get a list of all possible GB bosses.", guild_ids = guildList)
+    async def GB(self, ctx: discord_slash.SlashContext):
+        if ctx.author.bot: return
+
+        urls = []
+        for bosses in BossGb.__members__: #find a solid alternative to __members__
+            urls.append("https://altema-mitrasphere.com/" + bosses.replace("_","").replace("And",""))
+        rs = (grequests.get(u) for u in urls)
+        responses = grequests.map(rs)
+
+        lst = ""
+        for x in range(len(responses)):
+            target = re.compile("404-img.png")
+            if target.search(str(responses[x].content)): #altema doesn't return the right code so look for the 404 img
+                lst += BossGb(x + 1).name.replace("_"," ") + '\n'
+            else:
+                lst += '[' + BossGb(x + 1).name.replace("_", " ") + ']' + "(https://altema-mitrasphere.com/" + BossGb(x + 1).name.replace("_","").replace("And","") + ')' + '\n'
+
+        embed = discord.Embed(description=lst)
+        await ctx.send(embed=embed, hidden=True)
 def setup(bot):
     bot.add_cog(lookUp(bot))
