@@ -298,33 +298,27 @@ class lookUp(commands.Cog):
         if ctx.author.bot: return
 
         # this solution finds first parital match so Boss enum needs to be carfully managed
+        # 0 = null 1 = ex 2 = gb
+        bossType = 0
         bossName = ''
-        for bosses in set(BossEx.__members__):
+        for bosses in BossEx.__members__:
             if boss.lower() in bosses.lower().replace("_"," "):
                 bossName = bosses
+                bossType = 1
+                break
+            elif boss.lower() in BossGb.__members__:
+                bossName = bosses
+                bossType = 2
                 break
 
-        if bossName != '':
+        if bossType != 0:
              response = requests.get("https://altema-mitrasphere.com/" + bossName.replace("_",""))
              if "404-img.png" in str(response.content): #altema doesn't return right code so look for their 404 img
                  await ctx.send("```BossEx not found on altema```", hidden=True)
-             else:
+             elif bossType == 1:
                  await ctx.send("https://altema-mitrasphere.com/" + bossName.replace("_","").replace("And",""))
         else:
-            bossName = ''
-            for bosses in set(BossGb.__members__):
-                if boss.lower() in bosses.lower().replace("_"," "):
-                    bossName = bosses
-                    break
-
-            if bossName != '':
-                 response = requests.get("https://altema-mitrasphere.com/" + bossName.replace("_",""))
-                 if "404-img.png" in str(response.content): #altema doesn't return right code so look for their 404 img
-                     await ctx.send("```BossGb not found on altema```", hidden=True)
-                 else:
-                     await ctx.send("https://altema-mitrasphere.com/" + bossName.replace("_","").replace("And",""))
-            else:
-                await ctx.send("```BossEx not found in database```", hidden=True)
+             await ctx.send("```BossEx not found in database```", hidden=True)
 
     @cog_ext.cog_slash(name="EX", description="Get a list of all possible EX bosses.", guild_ids = guildList)
     async def EX(self, ctx: discord_slash.SlashContext):
@@ -367,5 +361,6 @@ class lookUp(commands.Cog):
 
         embed = discord.Embed(description=lst)
         await ctx.send(embed=embed, hidden=True)
+
 def setup(bot):
     bot.add_cog(lookUp(bot))
